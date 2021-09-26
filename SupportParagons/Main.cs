@@ -73,7 +73,7 @@ namespace SupportParagons
                 Game.instance.GetLocalizationManager().textTable["BananaFarm Paragon Description"] =
                     "As more time is spent\nmore bananas are made.";
 
-                Game.instance.GetLocalizationManager().textTable["EngineerMonkey Paragon"] = "Sentry God";
+                Game.instance.GetLocalizationManager().textTable["EngineerMonkey Paragon"] = "Sentry Mastermind";
                 Game.instance.GetLocalizationManager().textTable["EngineerMonkey Paragon Description"] =
                    "Pog";
             }
@@ -137,7 +137,7 @@ namespace SupportParagons
             }
         }
 
-        //! BananaFarm degree update
+        //! BananaFarm degree & stat update
         [HarmonyPatch(typeof(InGame), nameof(InGame.Update))]
         class Update
         {
@@ -150,8 +150,7 @@ namespace SupportParagons
                     foreach (var simTower in towers)
                     {
                         var towerModel = simTower.tower.towerModel;
-                        //! BananaFarm
-                        if (simTower.IsParagon && towerModel.baseId=="BananaFarm")
+                        if (simTower.IsParagon && towerModel.baseId == "BananaFarm")
                         {
                             var cash = simTower.tower.cashEarned;
                             var paragonTower = simTower.tower.GetTowerBehavior<ParagonTower>();
@@ -170,6 +169,33 @@ namespace SupportParagons
                             if (cashModel.minimum != amount)
                             { cashModel.minimum = amount; cashModel.maximum = amount; }
                         }
+                    }
+                }
+            }
+        }
+
+        //! Adjust paragon stats for degree
+        [HarmonyPatch(typeof(UnityToSimulation), nameof(UnityToSimulation.UpgradeTowerParagon))]
+        class UpgradeTowerParagon
+        {
+            [HarmonyPostfix]
+            internal static void Postfix(int id)
+            {
+                foreach (var simTower in InGame.instance.UnityToSimulation.GetAllTowers())
+                {
+                    if (simTower.tower.Id == id)
+                    {
+                        if (simTower.IsParagon)
+                        {
+                            var towerModel = simTower.tower.towerModel;
+                            var degree = simTower.tower.GetTowerBehavior<ParagonTower>().GetCurrentDegree();
+                            //!Engineer
+                            if (towerModel.baseId == "EngineerMonkey")
+                            {
+                                MelonLogger.Msg("Engineer upgraded to Paragon");
+                            }
+                        }
+                        break;
                     }
                 }
             }

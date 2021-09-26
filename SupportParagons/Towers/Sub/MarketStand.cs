@@ -18,7 +18,7 @@ namespace SupportParagons.Towers.Sub
         public override int Cost => 0;
 
         public override string DisplayName => "Market Stall";
-        public override string Description => "";
+        public override string Description => "Money galore.";
 
         public override int TopPathUpgrades => 0;
         public override int MiddlePathUpgrades => 0;

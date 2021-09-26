@@ -6,12 +6,15 @@ using Assets.Scripts.Models.Towers.Behaviors.Abilities;
 using Assets.Scripts.Models.Towers.Behaviors.Attack;
 using Assets.Scripts.Models.Towers.Mods;
 using Assets.Scripts.Models.Towers.Projectiles;
+using Assets.Scripts.Models.Towers.Projectiles.Behaviors;
 using Assets.Scripts.Models.Towers.Upgrades;
 using Assets.Scripts.Models.Towers.Weapons;
 using Assets.Scripts.Unity;
 using Assets.Scripts.Utils;
+using BTD_Mod_Helper.Api;
 using BTD_Mod_Helper.Extensions;
 using MelonLoader;
+using SupportParagons.Towers.Sub;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -140,7 +143,9 @@ namespace SupportParagons.Towers
             foreach (var model in monkeys[1].GetAttackModels()) towerModel.AddBehavior(model.Duplicate());
             var sentryAttackModel = towerModel.GetAttackModels()[0]; var attackModel = towerModel.GetAttackModels()[1];
 
-
+            sentryAttackModel.weapons[0].rate = 2f; attackModel.range = 80; towerModel.range = 80;
+            sentryAttackModel.weapons[0].projectile.GetBehavior<CreateTowerModel>().tower = ModContent.GetTowerModel<OverclockedSentry>();
+            attackModel.weapons[0].projectile.display = Game.instance.model.GetTower(TowerType.SentryParagon).GetWeapon().projectile.display;
         }
 
         static void CustomizeTower()
