@@ -192,7 +192,7 @@ namespace SupportParagons
                             //!Engineer
                             if (towerModel.baseId == "EngineerMonkey")
                             {
-                                MelonLogger.Msg("Engineer upgraded to Paragon");
+                                // TODO: Add paragon degree handling
                             }
                         }
                         break;

@@ -1,5 +1,5 @@
 # Custom Paragons
-These are my custom modded paragons. They may not be completed balanced so do message my Discord (DepletedNova#1957) with suggestions.
+These are my custom modded paragons. They may not be completely balanced so do message my Discord (DepletedNova#1957) with suggestions.
 ## Support
 ### Banana Farm
 - Automatically collects money
