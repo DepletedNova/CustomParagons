@@ -83,13 +83,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Towers\EngineerParagon.cs" />
     <Compile Include="Towers\FarmParagon.cs" />
+    <Compile Include="Towers\Sub\EliteSentry.cs" />
     <Compile Include="Towers\Sub\MarketStand.cs" />
     <Compile Include="Towers\Sub\OverclockedSentry.cs" />
   </ItemGroup>
   <ItemGroup />
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\Projectiles\OverclockedSentryPlasma.png" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy "$(TargetDir)$(TargetFileName)" "C:\Program Files (x86)\Steam\steamapps\common\BloonsTD6\Mods" /y</PostBuildEvent>

@@ -73,7 +73,7 @@ namespace SupportParagons
                 Game.instance.GetLocalizationManager().textTable["BananaFarm Paragon Description"] =
                     "As more time is spent\nmore bananas are made.";
 
-                Game.instance.GetLocalizationManager().textTable["EngineerMonkey Paragon"] = "Sentry Mastermind";
+                Game.instance.GetLocalizationManager().textTable["EngineerMonkey Paragon"] = "Sentry Divos";
                 Game.instance.GetLocalizationManager().textTable["EngineerMonkey Paragon Description"] =
                    "Pog";
             }

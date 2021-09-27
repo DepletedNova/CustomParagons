@@ -13,6 +13,7 @@ using Assets.Scripts.Unity;
 using Assets.Scripts.Utils;
 using BTD_Mod_Helper.Api;
 using BTD_Mod_Helper.Extensions;
+using HarmonyLib;
 using MelonLoader;
 using SupportParagons.Towers.Sub;
 using System;
@@ -141,11 +142,24 @@ namespace SupportParagons.Towers
         static void AddCommonBehaviors()
         {
             foreach (var model in monkeys[1].GetAttackModels()) towerModel.AddBehavior(model.Duplicate());
-            var sentryAttackModel = towerModel.GetAttackModels()[0]; var attackModel = towerModel.GetAttackModels()[1];
+            towerModel.AddBehavior(monkeys[1].GetAttackModel().Duplicate());
+            var sentryAttackModel = towerModel.GetAttackModels()[0];
+            var attackModel = towerModel.GetAttackModels()[1];
+            var eliteAttackModel = towerModel.GetAttackModels()[2];
 
-            sentryAttackModel.weapons[0].rate = 2f; attackModel.range = 80; towerModel.range = 80;
-            sentryAttackModel.weapons[0].projectile.GetBehavior<CreateTowerModel>().tower = ModContent.GetTowerModel<OverclockedSentry>();
-            attackModel.weapons[0].projectile.display = Game.instance.model.GetTower(TowerType.SentryParagon).GetWeapon().projectile.display;
+            var projectile = attackModel.weapons[0].projectile;
+
+            sentryAttackModel.weapons[0].rate = 3f;
+            sentryAttackModel.weapons[0].projectile.GetBehavior<CreateTowerModel>().tower = ModContent.GetTowerModel<OverclockedSentry>().Duplicate();
+
+            projectile.display = Game.instance.model.GetTower(TowerType.SentryParagon).GetWeapon().projectile.display;
+            projectile.pierce = 200f; projectile.GetDamageModel().damage = 300;
+            attackModel.weapons[0].rate = 0.15f; attackModel.range = 110; towerModel.range = 110;
+
+            eliteAttackModel.weapons[0].rate = 15f;
+            eliteAttackModel.weapons[0].projectile.GetBehavior<CreateTowerModel>().tower = ModContent.GetTowerModel<EliteSentry>().Duplicate();
+
+            towerModel.AddBehavior(new OverrideCamoDetectionModel("OCDM_EngPara", true));
         }
 
         static void CustomizeTower()

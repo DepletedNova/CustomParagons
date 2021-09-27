@@ -27,28 +27,17 @@ namespace SupportParagons.Towers.Sub
         public override void ModifyBaseTowerModel(TowerModel Tower)
         {
             var towerExpireModel = Tower.GetBehavior<TowerExpireModel>();
-            towerExpireModel.lifespan = 6.75f;
+            towerExpireModel.lifespan = 7.5f;
+            Tower.range = 80; Tower.GetAttackModel().range = 80;
+            Tower.GetWeapon().projectile.GetDamageModel().damage = 100;
+            Tower.GetWeapon().rate = 0.1f;
+
+            Tower.AddBehavior(new OverrideCamoDetectionModel("OCDM_OverSentry", true));
         }
 
         public override int GetTowerIndex(List<TowerDetailsModel> towerSet)
         {
             return -1;
-        }
-    }
-
-    class OverclockedSentryDisplay : ModTowerDisplay<OverclockedSentry>
-    {
-        public override string BaseDisplay => GetDisplay(TowerType.SentryParagon);
-
-        public override void ModifyDisplayNode(UnityDisplayNode node)
-        {
-            node.PrintInfo();
-            node.SaveMeshTexture();
-        }
-
-        public override bool UseForTower(int[] tiers)
-        {
-            return true;
         }
     }
 }
