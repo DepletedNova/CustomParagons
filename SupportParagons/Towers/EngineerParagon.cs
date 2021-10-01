@@ -4,11 +4,13 @@ using Assets.Scripts.Models.Towers;
 using Assets.Scripts.Models.Towers.Behaviors;
 using Assets.Scripts.Models.Towers.Behaviors.Abilities;
 using Assets.Scripts.Models.Towers.Behaviors.Attack;
+using Assets.Scripts.Models.Towers.Behaviors.Attack.Behaviors;
 using Assets.Scripts.Models.Towers.Mods;
 using Assets.Scripts.Models.Towers.Projectiles;
 using Assets.Scripts.Models.Towers.Projectiles.Behaviors;
 using Assets.Scripts.Models.Towers.Upgrades;
 using Assets.Scripts.Models.Towers.Weapons;
+using Assets.Scripts.Models.Towers.Weapons.Behaviors;
 using Assets.Scripts.Unity;
 using Assets.Scripts.Utils;
 using BTD_Mod_Helper.Api;
@@ -42,7 +44,7 @@ namespace SupportParagons.Towers
 
             AddGenericBehaviors();
 
-            AddCommonBehaviors();
+            AddCustomBehaviors();
 
             CustomizeTower();
         }
@@ -57,12 +59,11 @@ namespace SupportParagons.Towers
 
         static void CreateUpgrade()
         {
-            var bomb = Game.instance.model.GetTower("EngineerMonkey", 0,5,0).Duplicate();
             upgradeModel = new UpgradeModel(
                 name: "EngineerMonkey Paragon",
                 cost: (int)price,
                 xpCost: 0,
-                icon: new SpriteReference(guid: bomb.icon.GUID),
+                icon: new SpriteReference(guid: monkeys[2].icon.GUID),
                 path: -1,
                 tier: 5,
                 locked: 0,
@@ -76,14 +77,14 @@ namespace SupportParagons.Towers
             towerModel = new TowerModel();
 
             towerModel.name = "EngineerMonkey-Paragon";
-            towerModel.display = monkeys[1].display;
+            towerModel.display = monkeys[3].display;
             towerModel.baseId = "EngineerMonkey";
 
             towerModel.cost = price;
             towerModel.towerSet = "Support";
             towerModel.radius = 6f;
             towerModel.radiusSquared = 36f;
-            towerModel.range = 70f;
+            towerModel.range = 120f;
 
             towerModel.ignoreBlockers = false;
             towerModel.isGlobalRange = false;
@@ -92,9 +93,9 @@ namespace SupportParagons.Towers
             towerModel.tier = 6;
             towerModel.tiers = Game.instance.model.GetTowerFromId("DartMonkey-Paragon").tiers;
 
-            towerModel.icon = monkeys[1].icon;
-            towerModel.portrait = monkeys[1].portrait;
-            towerModel.instaIcon = monkeys[1].instaIcon;
+            towerModel.icon = monkeys[2].icon;
+            towerModel.portrait = monkeys[2].portrait;
+            towerModel.instaIcon = monkeys[2].instaIcon;
 
             towerModel.ignoreTowerForSelection = false;
             towerModel.footprint = monkeys[1].footprint.Duplicate();
@@ -107,7 +108,7 @@ namespace SupportParagons.Towers
             var appliedUpgrades = new Il2CppStringArray(6);
             for (int upgrade = 0; upgrade < 5; upgrade++)
             {
-                appliedUpgrades[upgrade] = Game.instance.model.GetTower(TowerType.BananaFarm,5,0,0).appliedUpgrades[upgrade];
+                appliedUpgrades[upgrade] = monkeys[1].appliedUpgrades[upgrade];
             }
             appliedUpgrades[5] = "EngineerMonkey Paragon";
             towerModel.appliedUpgrades = appliedUpgrades;
@@ -136,41 +137,40 @@ namespace SupportParagons.Towers
             towerModel.AddBehavior(monkeys[1].GetBehavior<CreateSoundOnSellModel>());
             towerModel.AddBehavior(monkeys[1].GetBehavior<CreateEffectOnSellModel>());
             towerModel.AddBehavior(monkeys[1].GetBehavior<CreateEffectOnUpgradeModel>());
-            towerModel.AddBehavior(monkeys[1].GetBehavior<DisplayModel>());
+            towerModel.AddBehavior(monkeys[3].GetBehavior<DisplayModel>());
         }
 
-        static void AddCommonBehaviors()
+        static void AddCustomBehaviors()
         {
-            foreach (var model in monkeys[1].GetAttackModels()) towerModel.AddBehavior(model.Duplicate());
             towerModel.AddBehavior(monkeys[1].GetAttackModel().Duplicate());
-            var sentryAttackModel = towerModel.GetAttackModels()[0];
-            var attackModel = towerModel.GetAttackModels()[1];
-            var eliteAttackModel = towerModel.GetAttackModels()[2];
+            towerModel.AddBehavior(monkeys[3].GetAttackModels()[1].Duplicate());
+            var creatorAttackModel = towerModel.GetAttackModels()[0];
+            var mainAttackModel = towerModel.GetAttackModels()[1];
 
-            var projectile = attackModel.weapons[0].projectile;
+            creatorAttackModel.weapons[0].projectile.GetBehavior<CreateTowerModel>().tower = 
+                ModContent.GetTowerModel<OverclockedSentry>().Duplicate();
+            creatorAttackModel.weapons[0].rate = 20; creatorAttackModel.weapons[0].startInCooldown = false;
+            creatorAttackModel.RemoveBehavior<RotateToTargetModel>();
+            creatorAttackModel.range = 60;
 
-            sentryAttackModel.weapons[0].rate = 3f;
-            sentryAttackModel.weapons[0].projectile.GetBehavior<CreateTowerModel>().tower = ModContent.GetTowerModel<OverclockedSentry>().Duplicate();
+            mainAttackModel.weapons[0].projectile = Game.instance.model.GetTower("SentryParagon").GetWeapon().projectile.Duplicate();
+            mainAttackModel.weapons[0].projectile.GetDamageModel().immuneBloonProperties = BloonProperties.None;
+            mainAttackModel.weapons[0].rate = 0.05f; mainAttackModel.weapons[0].projectile.pierce = 50;
+            mainAttackModel.weapons[0].projectile.SetHitCamo(true);
+            mainAttackModel.range = 120;
 
-            projectile.display = Game.instance.model.GetTower(TowerType.SentryParagon).GetWeapon().projectile.display;
-            projectile.pierce = 200f; projectile.GetDamageModel().damage = 300;
-            attackModel.weapons[0].rate = 0.15f; attackModel.range = 110; towerModel.range = 110;
-
-            eliteAttackModel.weapons[0].rate = 15f;
-            eliteAttackModel.weapons[0].projectile.GetBehavior<CreateTowerModel>().tower = ModContent.GetTowerModel<EliteSentry>().Duplicate();
-
-            towerModel.AddBehavior(new OverrideCamoDetectionModel("OCDM_EngPara", true));
+            towerModel.AddBehavior(new OverrideCamoDetectionModel("OverrideCamo_EngineerParagon", true));
         }
 
         static void CustomizeTower()
         {
             var boomerangParagon = Game.instance.model.GetTowerFromId("BoomerangMonkey-Paragon").Duplicate();
 
-            towerModel.display = monkeys[1].display;
-            towerModel.GetBehavior<DisplayModel>().display = monkeys[1].display;
+            towerModel.display = monkeys[3].display;
+            towerModel.GetBehavior<DisplayModel>().display = monkeys[3].display;
 
             towerModel.AddBehavior(boomerangParagon.GetBehavior<ParagonTowerModel>());
-            towerModel.GetBehavior<ParagonTowerModel>().displayDegreePaths.ForEach(path => path.assetPath = monkeys[1].display);
+            towerModel.GetBehavior<ParagonTowerModel>().displayDegreePaths.ForEach(path => path.assetPath = monkeys[3].display);
             towerModel.AddBehavior(boomerangParagon.GetBehavior<CreateSoundOnAttachedModel>());
         }
     }

@@ -34,7 +34,8 @@ namespace SupportParagons
         static Dictionary<string, Type> paragonKeys = new Dictionary<string, Type>()
         {
             { "BananaFarm", typeof(FarmParagon) },
-            { "EngineerMonkey", typeof(EngineerParagon) }
+            { "EngineerMonkey", typeof(EngineerParagon) },
+            { "SpikeFactory", typeof(SpikeParagon) }
         };
 
         static List<Tuple<TowerModel, UpgradeModel>> paragons = new List<Tuple<TowerModel, UpgradeModel>>();
@@ -76,6 +77,10 @@ namespace SupportParagons
                 Game.instance.GetLocalizationManager().textTable["EngineerMonkey Paragon"] = "Sentry Divos";
                 Game.instance.GetLocalizationManager().textTable["EngineerMonkey Paragon Description"] =
                    "Pog";
+
+                Game.instance.GetLocalizationManager().textTable["SpikeFactory Paragon"] = "Spiked Facts";
+                Game.instance.GetLocalizationManager().textTable["SpikeFactory Paragon Description"] =
+                   "Poggers";
             }
         }
 
@@ -164,17 +169,20 @@ namespace SupportParagons
                                 paragonTower.UpdateDegree();
                             }
                             // Adjust income based on degree
+                            var towerModelCash = towerModel.GetWeapon().projectile.GetBehavior<CreateTowerModel>()
+                                .tower.GetWeapon().projectile.GetBehavior<CashModel>();
                             var cashModel = towerModel.GetWeapon().projectile.GetBehavior<CashModel>();
-                            var amount = 500 + (5f * degree) * (2 * (float)Math.Floor(new Decimal(degree / 10)) + 2);
+                            var amount = (5f * degree) * (2 * (float)Math.Floor(new Decimal(degree / 10)) + 2);
                             if (cashModel.minimum != amount)
-                            { cashModel.minimum = amount; cashModel.maximum = amount; }
+                            { cashModel.minimum = 500 + amount; cashModel.maximum = 500 + amount;
+                                towerModelCash.minimum = 160 + amount; towerModelCash.maximum = 160 + amount; }
                         }
                     }
                 }
             }
         }
 
-        //! Adjust paragon stats for degree
+        //! Adjust paragon custom stats for degree
         [HarmonyPatch(typeof(UnityToSimulation), nameof(UnityToSimulation.UpgradeTowerParagon))]
         class UpgradeTowerParagon
         {
@@ -189,10 +197,14 @@ namespace SupportParagons
                         {
                             var towerModel = simTower.tower.towerModel;
                             var degree = simTower.tower.GetTowerBehavior<ParagonTower>().GetCurrentDegree();
-                            //!Engineer
+                            //! Engineer
                             if (towerModel.baseId == "EngineerMonkey")
                             {
-                                // TODO: Add paragon degree handling
+                                var tTower = towerModel.GetAttackModel().weapons[0].projectile.GetBehavior<CreateTowerModel>().tower;
+                                float mathDegree = (float)Math.Floor(new Decimal(degree / 10));
+                                tTower.GetAttackModel().weapons[0].rate = .4f / (mathDegree + 1);
+                                tTower.GetAttackModel().weapons[0].projectile.pierce += 50 * (mathDegree + 1) + (5 * (degree - 1));
+                                tTower.GetAttackModel().weapons[0].projectile.GetDamageModel().damage = 15 * (mathDegree + 1);
                             }
                         }
                         break;
