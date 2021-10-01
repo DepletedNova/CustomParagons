@@ -76,11 +76,11 @@ namespace SupportParagons
 
                 Game.instance.GetLocalizationManager().textTable["EngineerMonkey Paragon"] = "Sentry Divos";
                 Game.instance.GetLocalizationManager().textTable["EngineerMonkey Paragon Description"] =
-                   "Pog";
+                   "A force to be reckoned with.";
 
-                Game.instance.GetLocalizationManager().textTable["SpikeFactory Paragon"] = "Spiked Facts";
+                Game.instance.GetLocalizationManager().textTable["SpikeFactory Paragon"] = "E.G.G.S.";
                 Game.instance.GetLocalizationManager().textTable["SpikeFactory Paragon Description"] =
-                   "Poggers";
+                   "Explosive Gold-Gilded Supermines.";
             }
         }
 

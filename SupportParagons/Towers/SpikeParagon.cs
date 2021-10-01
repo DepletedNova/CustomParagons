@@ -32,7 +32,7 @@ namespace SupportParagons.Towers
 {
     class SpikeParagon
     {
-        static float price = 450000f;
+        static float price = 600000f;
 
         public static TowerModel towerModel;
         public static UpgradeModel upgradeModel;
@@ -47,7 +47,7 @@ namespace SupportParagons.Towers
 
             AddGenericBehaviors();
 
-            AddCommonBehaviors();
+            AddCustomBehaviors();
 
             CustomizeTower();
         }
@@ -90,15 +90,15 @@ namespace SupportParagons.Towers
             towerModel.range = 70f;
 
             towerModel.ignoreBlockers = true;
-            towerModel.isGlobalRange = false;
+            towerModel.isGlobalRange = true;
             towerModel.areaTypes = towers[0].areaTypes;
 
             towerModel.tier = 6;
             towerModel.tiers = Game.instance.model.GetTowerFromId("DartMonkey-Paragon").tiers;
 
-            towerModel.icon = towers[0].icon;
-            towerModel.portrait = towers[2].portrait;
-            towerModel.instaIcon = towers[2].instaIcon;
+            towerModel.icon = towers[1].icon;
+            towerModel.portrait = towers[1].portrait;
+            towerModel.instaIcon = towers[1].instaIcon;
 
             towerModel.ignoreTowerForSelection = false;
             towerModel.footprint = towers[0].footprint.Duplicate();
@@ -111,7 +111,7 @@ namespace SupportParagons.Towers
             var appliedUpgrades = new Il2CppStringArray(6);
             for (int upgrade = 0; upgrade < 5; upgrade++)
             {
-                appliedUpgrades[upgrade] = Game.instance.model.GetTower(TowerType.SpikeFactory, 5, 0, 0).appliedUpgrades[upgrade];
+                appliedUpgrades[upgrade] = towers[1].appliedUpgrades[upgrade];
             }
             appliedUpgrades[5] = "SpikeFactory Paragon";
             towerModel.appliedUpgrades = appliedUpgrades;
@@ -143,42 +143,39 @@ namespace SupportParagons.Towers
             towerModel.AddBehavior(towers[1].GetBehavior<DisplayModel>());
         }
 
-        static void AddCommonBehaviors()
+        static void AddCustomBehaviors()
         {
-            // Plasma base attack
-            towerModel.AddBehavior(towers[3].GetAttackModel().Duplicate());
-            var mainAttackModel = towerModel.GetAttackModels()[0];
-            var sentryParagon = Game.instance.model.GetTower("SentryParagon");
-            var projectile = mainAttackModel.weapons[0].projectile = towers[0].GetWeapon().projectile.Duplicate();
-            projectile.RemoveBehavior<SetSpriteFromPierceModel>();
-            projectile.display = sentryParagon.GetWeapon().projectile.display;
+            // Base Mines
+            towerModel.AddBehavior(towers[1].GetAttackModel().Duplicate());
+            var attackModel = towerModel.GetAttackModel();
+            attackModel.weapons[0].rate = 1f;
 
-            mainAttackModel.range = 60f; towerModel.range = 60f; mainAttackModel.weapons[0].rate = 0.35f;
-            projectile.GetDamageModel().damage = 5f; projectile.pierce = 150f;
-            projectile.GetDamageModel().immuneBloonProperties = BloonProperties.None;
-            projectile.SetHitCamo(true);
+            // Perma-mine behavior
+            var ageModel = attackModel.weapons[0].projectile.GetBehavior<AgeModel>();
+            ageModel.useRoundTime = true; ageModel.rounds = 15;
+            attackModel.weapons[0].projectile.AddBehavior(towers[3].GetWeapon().projectile
+                .GetBehavior<EndOfRoundClearBypassModel>().Duplicate());
 
-            // Plasma burst
-            towerModel.AddBehavior(Game.instance.model.GetTower("TackShooter").GetAttackModel().Duplicate());
-            var burstAttackModel = towerModel.GetAttackModels()[1];
-            burstAttackModel.weapons[0].projectile =
-                sentryParagon.GetBehavior<CreateProjectileOnTowerDestroyModel>().projectileModel
-                .GetBehavior<CreateProjectileOnExpireModel>().projectile.Duplicate();
-            burstAttackModel.weapons[0].projectile.AddBehavior(sentryParagon.GetBehavior<CreateProjectileOnTowerDestroyModel>()
-                .projectileModel.GetBehavior<CreateEffectOnExpireModel>().Duplicate());
-            burstAttackModel.weapons[0].projectile.GetDamageModel().immuneBloonProperties = BloonProperties.None;
-            burstAttackModel.fireWithoutTarget = true; burstAttackModel.weapons[0].rate = 1.5f;
-            burstAttackModel.weapons[0].startInCooldown = true; burstAttackModel.weapons[0].projectile.SetHitCamo(true);
-            burstAttackModel.weapons[0].projectile.pierce = 15f; burstAttackModel.weapons[0].projectile.GetDamageModel().damage = 1000;
-            burstAttackModel.weapons[0].projectile.GetDamageModel().distributeToChildren = true;
+            // Funny mines
+            towerModel.AddBehavior(Game.instance.model.GetTower("SpikeFactory",2).GetAttackModel().Duplicate());
+            var globalAttackModel = towerModel.GetAttackModels()[1];
+            globalAttackModel.range = 9999; globalAttackModel.weapons[0].rate = 0.025f;
+            globalAttackModel.weapons[0].projectile.GetDamageModel().damage = 4;
+            globalAttackModel.weapons[0].animateOnMainAttack = false;
+            var globalAgeModel = globalAttackModel.weapons[0].projectile.GetBehavior<AgeModel>();
+            globalAgeModel.useRoundTime = false; globalAgeModel.lifespan = 10f;
+            globalAttackModel.weapons[0].projectile.AddBehavior(towers[3].GetWeapon().projectile
+                .GetBehavior<EndOfRoundClearBypassModel>().Duplicate());
+            globalAttackModel.weapons[0].projectile.AddBehavior(new DamageModifierForTagModel("DamageModiferForTag_SpikeParagon",
+                "Ceramic", 2.5f, 0, true, true));
         }
 
         static void CustomizeTower()
         {
             var boomerangParagon = Game.instance.model.GetTowerFromId("BoomerangMonkey-Paragon").Duplicate();
 
-            towerModel.display = towers[3].display;
-            towerModel.GetBehavior<DisplayModel>().display = towers[3].display;
+            towerModel.display = towers[1].display;
+            towerModel.GetBehavior<DisplayModel>().display = towers[1].display;
 
             towerModel.AddBehavior(boomerangParagon.GetBehavior<ParagonTowerModel>());
             towerModel.GetBehavior<ParagonTowerModel>().displayDegreePaths.ForEach(path => path.assetPath = towers[1].display);

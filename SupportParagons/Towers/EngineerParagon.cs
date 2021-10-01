@@ -29,7 +29,7 @@ namespace SupportParagons.Towers
 {
     class EngineerParagon
     {
-        static float price = 350000f;
+        static float price = 400000f;
 
         public static TowerModel towerModel;
         public static UpgradeModel upgradeModel;
