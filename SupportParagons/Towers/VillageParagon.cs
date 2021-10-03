@@ -9,11 +9,15 @@ using Assets.Scripts.Models.Towers.Behaviors.Attack.Behaviors;
 using Assets.Scripts.Models.Towers.Mods;
 using Assets.Scripts.Models.Towers.Projectiles;
 using Assets.Scripts.Models.Towers.Projectiles.Behaviors;
+using Assets.Scripts.Models.Towers.TowerFilters;
 using Assets.Scripts.Models.Towers.Upgrades;
 using Assets.Scripts.Models.Towers.Weapons;
+using Assets.Scripts.Models.Towers.Weapons.Behaviors;
 using Assets.Scripts.Simulation.Towers.Projectiles.Behaviors;
+using Assets.Scripts.Simulation.Towers.Weapons.Behaviors;
 using Assets.Scripts.Unity;
 using Assets.Scripts.Unity.Display;
+using Assets.Scripts.Unity.Towers.Weapons.Behaviors;
 using Assets.Scripts.Utils;
 using BTD_Mod_Helper.Api;
 using BTD_Mod_Helper.Api.Display;
@@ -26,20 +30,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnhollowerBaseLib;
-using CreateEffectOnExpireModel = Assets.Scripts.Models.Towers.Projectiles.Behaviors.CreateEffectOnExpireModel;
 
 namespace SupportParagons.Towers
 {
-    class SpikeParagon
+    class VillageParagon
     {
-        static float price = 550000f;
+        static float price = 800000f;
 
         public static TowerModel towerModel;
         public static UpgradeModel upgradeModel;
 
-        public static string baseTower = "SpikeFactory";
+        public static string baseTower = "MonkeyVillage";
 
-        static SpikeParagon()
+        static VillageParagon()
         {
             CreateUpgrade();
 
@@ -54,19 +57,19 @@ namespace SupportParagons.Towers
 
         static TowerModel[] towers =
         {
-            Game.instance.model.GetTower("SpikeFactory").Duplicate(),
-            Game.instance.model.GetTower("SpikeFactory",5).Duplicate(),
-            Game.instance.model.GetTower("SpikeFactory",0,5).Duplicate(),
-            Game.instance.model.GetTower("SpikeFactory",0,0,5).Duplicate(),
+            Game.instance.model.GetTower("MonkeyVillage").Duplicate(),
+            Game.instance.model.GetTower("MonkeyVillage",5).Duplicate(),
+            Game.instance.model.GetTower("MonkeyVillage",0,5).Duplicate(),
+            Game.instance.model.GetTower("MonkeyVillage",0,0,5).Duplicate(),
         };
 
         static void CreateUpgrade()
         {
             upgradeModel = new UpgradeModel(
-                name: "SpikeFactory Paragon",
+                name: "MonkeyVillage Paragon",
                 cost: (int)price,
                 xpCost: 0,
-                icon: towers[0].icon,
+                icon: towers[2].icon,
                 path: -1,
                 tier: 5,
                 locked: 0,
@@ -79,15 +82,15 @@ namespace SupportParagons.Towers
         {
             towerModel = new TowerModel();
 
-            towerModel.name = "SpikeFactory-Paragon";
-            towerModel.display = towers[0].display;
-            towerModel.baseId = "SpikeFactory";
+            towerModel.name = "MonkeyVillage-Paragon";
+            towerModel.display = towers[2].display;
+            towerModel.baseId = "MonkeyVillage";
 
             towerModel.cost = price;
             towerModel.towerSet = "Support";
             towerModel.radius = 6f;
             towerModel.radiusSquared = 36f;
-            towerModel.range = 70f;
+            towerModel.range = 80f;
 
             towerModel.ignoreBlockers = true;
             towerModel.isGlobalRange = true;
@@ -96,9 +99,9 @@ namespace SupportParagons.Towers
             towerModel.tier = 6;
             towerModel.tiers = Game.instance.model.GetTowerFromId("DartMonkey-Paragon").tiers;
 
-            towerModel.icon = towers[1].icon;
-            towerModel.portrait = towers[1].portrait;
-            towerModel.instaIcon = towers[1].instaIcon;
+            towerModel.icon = towers[2].icon;
+            towerModel.portrait = towers[2].portrait;
+            towerModel.instaIcon = towers[2].instaIcon;
 
             towerModel.ignoreTowerForSelection = false;
             towerModel.footprint = towers[0].footprint.Duplicate();
@@ -113,7 +116,7 @@ namespace SupportParagons.Towers
             {
                 appliedUpgrades[upgrade] = towers[1].appliedUpgrades[upgrade];
             }
-            appliedUpgrades[5] = "SpikeFactory Paragon";
+            appliedUpgrades[5] = "MonkeyVillage Paragon";
             towerModel.appliedUpgrades = appliedUpgrades;
 
             towerModel.paragonUpgrade = null;
@@ -145,40 +148,44 @@ namespace SupportParagons.Towers
 
         static void AddCustomBehaviors()
         {
-            // Base Mines
-            towerModel.AddBehavior(towers[1].GetAttackModel().Duplicate());
-            var attackModel = towerModel.GetAttackModel();
-            attackModel.weapons[0].rate = 1f;
-
-            // Perma-mine behavior
-            var ageModel = attackModel.weapons[0].projectile.GetBehavior<AgeModel>();
-            ageModel.useRoundTime = true; ageModel.rounds = 15;
-            attackModel.weapons[0].projectile.AddBehavior(towers[3].GetWeapon().projectile
-                .GetBehavior<EndOfRoundClearBypassModel>().Duplicate());
-
-            // Funny mines
-            towerModel.AddBehavior(Game.instance.model.GetTower("SpikeFactory",2).GetAttackModel().Duplicate());
-            var globalAttackModel = towerModel.GetAttackModels()[1];
-            globalAttackModel.range = 9999; globalAttackModel.weapons[0].rate = 0.025f;
-            globalAttackModel.weapons[0].projectile.GetDamageModel().damage = 4;
-            globalAttackModel.weapons[0].animateOnMainAttack = false;
-            var globalAgeModel = globalAttackModel.weapons[0].projectile.GetBehavior<AgeModel>();
-            globalAgeModel.useRoundTime = false; globalAgeModel.lifespan = 10f;
-            globalAttackModel.weapons[0].projectile.AddBehavior(towers[3].GetWeapon().projectile
-                .GetBehavior<EndOfRoundClearBypassModel>().Duplicate());
-            globalAttackModel.weapons[0].projectile.AddBehavior(new DamageModifierForTagModel("DamageModiferForTag_SpikeParagon",
-                "Ceramic", 2.5f, 0, true, true));
+            // Discounts
+            var discountVillage = Game.instance.model.GetTower("MonkeyVillage", 0, 0, 2).GetBehavior<DiscountZoneModel>();
+            towerModel.AddBehavior(new DiscountZoneModel("DiscountZone_VillageParagon", 0.4F, 1,
+                "VILPARA_DISCOUNT", "VILLAGEPARA", false, 5, discountVillage.buffLocsName, discountVillage.buffIconName));
+            towerModel.AddBehavior(new FreeUpgradeSupportModel("FreeUpgradeSupport_VillageParagon",
+                2, "VillageParagon:Discount", new Il2CppReferenceArray<TowerFilterModel>(0)));
+            // Buffs
+            var rateSupportModel = towers[1].GetBehavior<RateSupportModel>();
+            towerModel.AddBehavior(new RateSupportModel("RateSupport_VillageParagon", 1.1f, true,
+                "VillageParagon:Buff", true, 1, new Il2CppReferenceArray<TowerFilterModel>(0),
+                rateSupportModel.buffLocsName, rateSupportModel.buffIconName));
+            towerModel.AddBehavior(new RangeSupportModel("RangeSupport_VillageParagon", true, 1f, 10,
+                "VillageParagon:Buff", new Il2CppReferenceArray<TowerFilterModel>(0), true,
+                rateSupportModel.buffLocsName, rateSupportModel.buffIconName));
+            towerModel.AddBehavior(new PierceSupportModel("PierceSupport_VillageParagon", true, 25,
+                "VillageParagon:Buff", new Il2CppReferenceArray<TowerFilterModel>(0), true,
+                rateSupportModel.buffLocsName, rateSupportModel.buffIconName));
+            var visibilitySupport = towers[2].GetBehavior<VisibilitySupportModel>().Duplicate();
+            var damageTypeSupport = towers[2].GetBehavior<DamageTypeSupportModel>().Duplicate();
+            visibilitySupport.buffLocsName = rateSupportModel.buffLocsName; visibilitySupport.buffIconName = rateSupportModel.buffIconName;
+            damageTypeSupport.buffLocsName = rateSupportModel.buffLocsName; damageTypeSupport.buffIconName = rateSupportModel.buffIconName;
+            towerModel.AddBehavior(visibilitySupport); towerModel.AddBehavior(damageTypeSupport);
+            // Money gain
+            towerModel.AddBehavior(Game.instance.model.GetTower("BananaFarm", 0, 0, 3).GetAttackModel());
+            var cashModel = towerModel.GetAttackModel().weapons[0].projectile.GetBehavior<CashModel>();
+            cashModel.minimum = 300; cashModel.maximum = 300;
+            towerModel.GetAttackModel().weapons[0].GetBehavior<EmissionsPerRoundFilterModel>().count = 15;
         }
 
         static void CustomizeTower()
         {
             var boomerangParagon = Game.instance.model.GetTowerFromId("BoomerangMonkey-Paragon").Duplicate();
 
-            towerModel.display = towers[1].display;
-            towerModel.GetBehavior<DisplayModel>().display = towers[1].display;
+            towerModel.display = towers[2].display;
+            towerModel.GetBehavior<DisplayModel>().display = towers[2].display;
 
             towerModel.AddBehavior(boomerangParagon.GetBehavior<ParagonTowerModel>());
-            towerModel.GetBehavior<ParagonTowerModel>().displayDegreePaths.ForEach(path => path.assetPath = towers[1].display);
+            towerModel.GetBehavior<ParagonTowerModel>().displayDegreePaths.ForEach(path => path.assetPath = towers[2].display);
             towerModel.AddBehavior(boomerangParagon.GetBehavior<CreateSoundOnAttachedModel>());
         }
     }

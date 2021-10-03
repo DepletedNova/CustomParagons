@@ -86,6 +86,7 @@
     <Compile Include="Towers\SpikeParagon.cs" />
     <Compile Include="Towers\Sub\OverclockedSentry.cs" />
     <Compile Include="Towers\Sub\MarketStand.cs" />
+    <Compile Include="Towers\VillageParagon.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

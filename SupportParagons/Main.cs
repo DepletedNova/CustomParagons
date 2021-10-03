@@ -23,6 +23,7 @@ using Assets.Scripts.Unity.UI_New.InGame;
 using Assets.Scripts.Unity.Bridge;
 using Assets.Scripts.Simulation.Towers.Behaviors;
 using Assets.Scripts.Models.Towers.Projectiles.Behaviors;
+using Assets.Scripts.Models.Towers.Behaviors;
 
 [assembly: MelonInfo(typeof(SupportParagons.Main), "Support Paragons", "1.0.0", "DepletedNova")]
 [assembly: MelonGame("Ninja Kiwi", "BloonsTD6")]
@@ -35,7 +36,8 @@ namespace SupportParagons
         {
             { "BananaFarm", typeof(FarmParagon) },
             { "EngineerMonkey", typeof(EngineerParagon) },
-            { "SpikeFactory", typeof(SpikeParagon) }
+            { "SpikeFactory", typeof(SpikeParagon) },
+            { "MonkeyVillage", typeof(VillageParagon) }
         };
 
         static List<Tuple<TowerModel, UpgradeModel>> paragons = new List<Tuple<TowerModel, UpgradeModel>>();
@@ -76,11 +78,15 @@ namespace SupportParagons
 
                 Game.instance.GetLocalizationManager().textTable["EngineerMonkey Paragon"] = "Sentry Divos";
                 Game.instance.GetLocalizationManager().textTable["EngineerMonkey Paragon Description"] =
-                   "A force to be reckoned with.";
+                   "Sentries and plasma make for a decent combination.";
 
-                Game.instance.GetLocalizationManager().textTable["SpikeFactory Paragon"] = "E.G.G.S.";
+                Game.instance.GetLocalizationManager().textTable["SpikeFactory Paragon"] = "Landmine Overseer";
                 Game.instance.GetLocalizationManager().textTable["SpikeFactory Paragon Description"] =
-                   "Explosive Gold-Gilded Supermines.";
+                   "Don't tread on me.";
+
+                Game.instance.GetLocalizationManager().textTable["MonkeyVillage Paragon"] = "Monkey Capital";
+                Game.instance.GetLocalizationManager().textTable["MonkeyVillage Paragon Description"] =
+                   "Incredible power secretes from this tower.";
             }
         }
 
@@ -146,6 +152,7 @@ namespace SupportParagons
         [HarmonyPatch(typeof(InGame), nameof(InGame.Update))]
         class Update
         {
+            public static int villageRound = 0;
             [HarmonyPostfix]
             internal static void Postfix()
             {
@@ -155,27 +162,52 @@ namespace SupportParagons
                     foreach (var simTower in towers)
                     {
                         var towerModel = simTower.tower.towerModel;
-                        if (simTower.IsParagon && towerModel.baseId == "BananaFarm")
+                        if (simTower.IsParagon)
                         {
-                            var cash = simTower.tower.cashEarned;
-                            var paragonTower = simTower.tower.GetTowerBehavior<ParagonTower>();
-                            var degree = paragonTower.GetCurrentDegree();
-                            if (cash >= (degree * 30000) && degree < 100)
-                            {
-                                // Degree update
-                                ParagonTower.InvestmentInfo info = paragonTower.investmentInfo;
-                                info.totalInvestment = Game.instance.model.paragonDegreeDataModel.powerDegreeRequirements[degree];
-                                paragonTower.investmentInfo = info;
-                                paragonTower.UpdateDegree();
+                            if (towerModel.baseId == "BananaFarm") { //! Banana Farm
+                                var cash = simTower.tower.cashEarned;
+                                var paragonTower = simTower.tower.GetTowerBehavior<ParagonTower>();
+                                var degree = paragonTower.GetCurrentDegree();
+                                if (cash >= (degree * 35000) && degree < 100)
+                                {
+                                    // Degree update
+                                    ParagonTower.InvestmentInfo info = paragonTower.investmentInfo;
+                                    info.totalInvestment = Game.instance.model.paragonDegreeDataModel.powerDegreeRequirements[degree];
+                                    paragonTower.investmentInfo = info;
+                                    paragonTower.UpdateDegree();
+                                }
+                                // Adjust income based on degree
+                                var towerModelCash = towerModel.GetWeapon().projectile.GetBehavior<CreateTowerModel>()
+                                    .tower.GetWeapon().projectile.GetBehavior<CashModel>();
+                                var cashModel = towerModel.GetWeapon().projectile.GetBehavior<CashModel>();
+                                var amount = (5f * degree) * (2 * (float)Math.Floor(new Decimal(degree / 10)) + 2);
+                                if (cashModel.minimum != 750+amount)
+                                {
+                                    cashModel.minimum = 750 + amount; cashModel.maximum = 750 + amount;
+                                    towerModelCash.minimum = 200 + amount; towerModelCash.maximum = 200 + amount;
+                                }
                             }
-                            // Adjust income based on degree
-                            var towerModelCash = towerModel.GetWeapon().projectile.GetBehavior<CreateTowerModel>()
-                                .tower.GetWeapon().projectile.GetBehavior<CashModel>();
-                            var cashModel = towerModel.GetWeapon().projectile.GetBehavior<CashModel>();
-                            var amount = (5f * degree) * (2 * (float)Math.Floor(new Decimal(degree / 10)) + 2);
-                            if (cashModel.minimum != amount)
-                            { cashModel.minimum = 500 + amount; cashModel.maximum = 500 + amount;
-                                towerModelCash.minimum = 160 + amount; towerModelCash.maximum = 160 + amount; }
+                            else if (towerModel.baseId == "MonkeyVillage") //! Monkey Village
+                            {
+                                var paragonTower = simTower.tower.GetTowerBehavior<ParagonTower>();
+                                var degree = paragonTower.GetCurrentDegree();
+                                var currentRound = InGame.instance.bridge.GetCurrentRound() - villageRound + 1;
+                                if (currentRound != degree && degree < 100)
+                                {
+                                    // Degree update
+                                    ParagonTower.InvestmentInfo info = paragonTower.investmentInfo;
+                                    info.totalInvestment = Game.instance.model.paragonDegreeDataModel.powerDegreeRequirements[degree];
+                                    paragonTower.investmentInfo = info;
+                                    paragonTower.UpdateDegree();
+                                    // Update stats
+                                    towerModel.GetBehavior<RateSupportModel>().multiplier = 1.1f + (degree * 0.01f);
+                                    towerModel.GetBehavior<RangeSupportModel>().additive = 10 + degree;
+                                    towerModel.GetBehavior<PierceSupportModel>().pierce = 25 + (degree * 5);
+                                    var cashModel = towerModel.GetAttackModel().weapons[0].projectile.GetBehavior<CashModel>();
+                                    cashModel.minimum = 300 + (degree * 10); cashModel.maximum = 300 + (degree * 10);
+                                    towerModel.GetBehavior<DiscountZoneModel>().discountMultiplier = 0.4f + degree * 0.005f;
+                                }
+                            }
                         }
                     }
                 }
@@ -197,14 +229,18 @@ namespace SupportParagons
                         {
                             var towerModel = simTower.tower.towerModel;
                             var degree = simTower.tower.GetTowerBehavior<ParagonTower>().GetCurrentDegree();
-                            //! Engineer
-                            if (towerModel.baseId == "EngineerMonkey")
+                            
+                            if (towerModel.baseId == "EngineerMonkey") //! Engineer
                             {
                                 var tTower = towerModel.GetAttackModel().weapons[0].projectile.GetBehavior<CreateTowerModel>().tower;
                                 float mathDegree = (float)Math.Floor(new Decimal(degree / 10));
                                 tTower.GetAttackModel().weapons[0].rate = .4f / (mathDegree + 1);
                                 tTower.GetAttackModel().weapons[0].projectile.pierce += 50 * (mathDegree + 1) + (5 * (degree - 1));
                                 tTower.GetAttackModel().weapons[0].projectile.GetDamageModel().damage = 15 * (mathDegree + 1);
+                            }
+                            else if (towerModel.baseId == "MonkeyVillage") //! Monkey Village
+                            {
+                                Update.villageRound = InGame.instance.bridge.GetCurrentRound();
                             }
                         }
                         break;
