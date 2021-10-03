@@ -183,8 +183,8 @@ namespace SupportParagons
                                 var amount = (5f * degree) * (2 * (float)Math.Floor(new Decimal(degree / 10)) + 2);
                                 if (cashModel.minimum != 750+amount)
                                 {
-                                    cashModel.minimum = 750 + amount; cashModel.maximum = 750 + amount;
-                                    towerModelCash.minimum = 200 + amount; towerModelCash.maximum = 200 + amount;
+                                    cashModel.minimum = 1000 + amount; cashModel.maximum = 1000 + amount;
+                                    towerModelCash.minimum = 400 + amount; towerModelCash.maximum = 400 + amount;
                                 }
                             }
                             else if (towerModel.baseId == "MonkeyVillage") //! Monkey Village
@@ -192,6 +192,7 @@ namespace SupportParagons
                                 var paragonTower = simTower.tower.GetTowerBehavior<ParagonTower>();
                                 var degree = paragonTower.GetCurrentDegree();
                                 var currentRound = InGame.instance.bridge.GetCurrentRound() - villageRound + 1;
+                                var cashModel = towerModel.GetAttackModel().weapons[0].projectile.GetBehavior<CashModel>();
                                 if (currentRound != degree && degree < 100)
                                 {
                                     // Degree update
@@ -199,11 +200,13 @@ namespace SupportParagons
                                     info.totalInvestment = Game.instance.model.paragonDegreeDataModel.powerDegreeRequirements[degree];
                                     paragonTower.investmentInfo = info;
                                     paragonTower.UpdateDegree();
+                                }
+                                if (cashModel.minimum != 300 + (degree * 10))
+                                {
                                     // Update stats
                                     towerModel.GetBehavior<RateSupportModel>().multiplier = 1.1f + (degree * 0.01f);
                                     towerModel.GetBehavior<RangeSupportModel>().additive = 10 + degree;
                                     towerModel.GetBehavior<PierceSupportModel>().pierce = 25 + (degree * 5);
-                                    var cashModel = towerModel.GetAttackModel().weapons[0].projectile.GetBehavior<CashModel>();
                                     cashModel.minimum = 300 + (degree * 10); cashModel.maximum = 300 + (degree * 10);
                                     towerModel.GetBehavior<DiscountZoneModel>().discountMultiplier = 0.4f + degree * 0.005f;
                                 }
