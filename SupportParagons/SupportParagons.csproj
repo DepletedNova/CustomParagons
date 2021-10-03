@@ -91,6 +91,7 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetDir)$(TargetFileName)" "C:\Program Files (x86)\Steam\steamapps\common\BloonsTD6\Mods" /y</PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetDir)$(TargetFileName)" "C:\Program Files (x86)\Steam\steamapps\common\BloonsTD6\Mods" /y
+copy "$(TargetDir)$(TargetFileName)" "C:\Users\bubbl\Documents\BTD6 Modding\SupportParagons\Paragons\DLL_files" /y</PostBuildEvent>
   </PropertyGroup>
 </Project>
