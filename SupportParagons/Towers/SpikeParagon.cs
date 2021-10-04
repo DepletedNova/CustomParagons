@@ -32,7 +32,7 @@ namespace SupportParagons.Towers
 {
     class SpikeParagon
     {
-        static float price = 550000f;
+        static float price = 500000f;
 
         public static TowerModel towerModel;
         public static UpgradeModel upgradeModel;

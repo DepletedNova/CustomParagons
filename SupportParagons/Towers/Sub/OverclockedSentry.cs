@@ -41,6 +41,8 @@ namespace SupportParagons.Towers.Sub
             Tower.AddBehavior(Game.instance.model.GetTower("TackShooter").GetAttackModel().Duplicate());
             Tower.GetAttackModels()[1].weapons[0].projectile = projectile;
             Tower.GetAttackModels()[1].weapons[0].rate = 5;Tower.GetAttackModel().weapons[0].fireWithoutTarget = true;
+            Tower.GetAttackModels()[1].weapons[0].projectile
+                .AddBehavior(new DamageModifierForTagModel("OverclockedSentry_Bloonarius", "Boss", 2, 0, false, true));
 
             Tower.GetAttackModel().range = 80; Tower.range = 80;
 

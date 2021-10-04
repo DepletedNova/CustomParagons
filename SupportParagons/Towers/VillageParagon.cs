@@ -150,7 +150,7 @@ namespace SupportParagons.Towers
         {
             // Discounts
             var discountVillage = Game.instance.model.GetTower("MonkeyVillage", 0, 0, 2).GetBehavior<DiscountZoneModel>();
-            towerModel.AddBehavior(new DiscountZoneModel("DiscountZone_VillageParagon", 0.5F, 1,
+            towerModel.AddBehavior(new DiscountZoneModel("DiscountZone_VillageParagon", 0.35F, 1,
                 "VILPARA_DISCOUNT", "VILLAGEPARA", false, 5, discountVillage.buffLocsName, discountVillage.buffIconName));
             towerModel.AddBehavior(new FreeUpgradeSupportModel("FreeUpgradeSupport_VillageParagon",
                 2, "VillageParagon:Discount", new Il2CppReferenceArray<TowerFilterModel>(0)));

@@ -25,7 +25,7 @@ using Assets.Scripts.Simulation.Towers.Behaviors;
 using Assets.Scripts.Models.Towers.Projectiles.Behaviors;
 using Assets.Scripts.Models.Towers.Behaviors;
 
-[assembly: MelonInfo(typeof(SupportParagons.Main), "Support Paragons", "1.1.0", "DepletedNova")]
+[assembly: MelonInfo(typeof(SupportParagons.Main), "Support Paragons", "1.1.1", "DepletedNova")]
 [assembly: MelonGame("Ninja Kiwi", "BloonsTD6")]
 namespace SupportParagons
 {
@@ -181,7 +181,7 @@ namespace SupportParagons
                                     .GetBehavior<CreateTowerModel>().tower.GetWeapon().projectile.GetBehavior<CashModel>();
                                 var cashModel = towerModel.GetWeapon().projectile.GetBehavior<CashModel>();
                                 var amount = (5f * degree) * (2 * mathed + 2);
-                                if (cashModel.minimum != 1000+amount)
+                                if (cashModel.minimum != 1000 + amount)
                                 {
                                     cashModel.minimum = 1000 + amount; cashModel.maximum = 1000 + amount;
                                     towerModelCash.minimum = 400 + amount; towerModelCash.maximum = 400 + amount;
@@ -213,9 +213,9 @@ namespace SupportParagons
                             {
                                 var tTower = towerModel.GetAttackModel().weapons[0].projectile.GetBehavior<CreateTowerModel>().tower;
                                 float mathDegree = (float)Math.Floor(new Decimal(degree / 10));
-                                tTower.GetAttackModel().weapons[0].rate = .3f / (mathDegree + 1);
-                                tTower.GetAttackModel().weapons[0].projectile.pierce += 50 * (mathDegree + 1) + (5 * (degree - 1));
-                                tTower.GetAttackModel().weapons[0].projectile.GetDamageModel().damage = 15 * (mathDegree + 1);
+                                tTower.GetAttackModels()[1].weapons[0].rate = .3f / (mathDegree + 1);
+                                tTower.GetAttackModels()[1].weapons[0].projectile.pierce += 50 * (mathDegree + 1) + (5 * (degree - 1));
+                                tTower.GetAttackModels()[1].weapons[0].projectile.GetDamageModel().damage = 15 * (mathDegree + 1);
                             }
                         }
                         break;
