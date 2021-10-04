@@ -156,7 +156,9 @@ namespace SupportParagons.Towers
             mainAttackModel.weapons[0].projectile = Game.instance.model.GetTower("SentryParagon").GetWeapon().projectile.Duplicate();
             mainAttackModel.weapons[0].projectile.GetDamageModel().immuneBloonProperties = BloonProperties.None;
             mainAttackModel.weapons[0].rate = 0.05f; mainAttackModel.weapons[0].projectile.pierce = 50;
-            mainAttackModel.weapons[0].projectile.SetHitCamo(true);
+            mainAttackModel.weapons[0].projectile.SetHitCamo(true); mainAttackModel.weapons[0].projectile.GetDamageModel().damage = 10;
+            mainAttackModel.weapons[0].projectile
+                .AddBehavior(new DamageModifierForTagModel("Engineer_Bloonarius", "Boss", 2, 0, false, true));
             mainAttackModel.range = 120;
 
             towerModel.AddBehavior(new OverrideCamoDetectionModel("OverrideCamo_EngineerParagon", true));

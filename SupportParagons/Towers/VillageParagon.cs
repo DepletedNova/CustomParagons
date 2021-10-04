@@ -35,7 +35,7 @@ namespace SupportParagons.Towers
 {
     class VillageParagon
     {
-        static float price = 800000f;
+        static float price = 400000f;
 
         public static TowerModel towerModel;
         public static UpgradeModel upgradeModel;
@@ -150,19 +150,19 @@ namespace SupportParagons.Towers
         {
             // Discounts
             var discountVillage = Game.instance.model.GetTower("MonkeyVillage", 0, 0, 2).GetBehavior<DiscountZoneModel>();
-            towerModel.AddBehavior(new DiscountZoneModel("DiscountZone_VillageParagon", 0.4F, 1,
+            towerModel.AddBehavior(new DiscountZoneModel("DiscountZone_VillageParagon", 0.5F, 1,
                 "VILPARA_DISCOUNT", "VILLAGEPARA", false, 5, discountVillage.buffLocsName, discountVillage.buffIconName));
             towerModel.AddBehavior(new FreeUpgradeSupportModel("FreeUpgradeSupport_VillageParagon",
                 2, "VillageParagon:Discount", new Il2CppReferenceArray<TowerFilterModel>(0)));
             // Buffs
             var rateSupportModel = towers[1].GetBehavior<RateSupportModel>();
-            towerModel.AddBehavior(new RateSupportModel("RateSupport_VillageParagon", 1.1f, true,
+            towerModel.AddBehavior(new RateSupportModel("RateSupport_VillageParagon", 1.25f, true,
                 "VillageParagon:Buff", true, 1, new Il2CppReferenceArray<TowerFilterModel>(0),
                 rateSupportModel.buffLocsName, rateSupportModel.buffIconName));
-            towerModel.AddBehavior(new RangeSupportModel("RangeSupport_VillageParagon", true, 1f, 10,
+            towerModel.AddBehavior(new RangeSupportModel("RangeSupport_VillageParagon", true, 1f, 20,
                 "VillageParagon:Buff", new Il2CppReferenceArray<TowerFilterModel>(0), true,
                 rateSupportModel.buffLocsName, rateSupportModel.buffIconName));
-            towerModel.AddBehavior(new PierceSupportModel("PierceSupport_VillageParagon", true, 25,
+            towerModel.AddBehavior(new PierceSupportModel("PierceSupport_VillageParagon", true, 50,
                 "VillageParagon:Buff", new Il2CppReferenceArray<TowerFilterModel>(0), true,
                 rateSupportModel.buffLocsName, rateSupportModel.buffIconName));
             var visibilitySupport = towers[2].GetBehavior<VisibilitySupportModel>().Duplicate();
@@ -173,8 +173,8 @@ namespace SupportParagons.Towers
             // Money gain
             towerModel.AddBehavior(Game.instance.model.GetTower("BananaFarm", 0, 0, 3).GetAttackModel());
             var cashModel = towerModel.GetAttackModel().weapons[0].projectile.GetBehavior<CashModel>();
-            cashModel.minimum = 300; cashModel.maximum = 300;
-            towerModel.GetAttackModel().weapons[0].GetBehavior<EmissionsPerRoundFilterModel>().count = 15;
+            cashModel.minimum = 2000; cashModel.maximum = 2000;
+            towerModel.GetAttackModel().weapons[0].GetBehavior<EmissionsPerRoundFilterModel>().count = 3;
         }
 
         static void CustomizeTower()
