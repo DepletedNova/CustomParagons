@@ -27,18 +27,23 @@ using Assets.Scripts.Utils;
 using UnhollowerBaseLib;
 using Assets.Scripts.Models.GenericBehaviors;
 
-namespace MagicParagons
+namespace MagicParagons.util
 {
+    class ParagonUtil
+    {
+
+    }
+
     abstract class ModdedParagon
     {
-        protected static void setupTower(ref UpgradeModel upgradeModel, ref TowerModel towerModel, string TowerClass, string BaseTower,
-            float Price, string Icon, string Display)
+        protected static void setupTower(ref UpgradeModel upgradeModel, ref TowerModel towerModel, string TowerClass, string BaseId,
+            float Price, TowerModel baseTower)
         {
             upgradeModel = new UpgradeModel(
-                name: $"{BaseTower} Paragon",
+                name: $"{BaseId} Paragon",
                 cost: (int)Price,
                 xpCost: 0,
-                icon: new SpriteReference(guid: Icon),
+                icon: new SpriteReference(guid: baseTower.icon.GUID),
                 path: -1,
                 tier: 5,
                 locked: 0,
@@ -46,13 +51,11 @@ namespace MagicParagons
                 localizedNameOverride: ""
             );
 
-            var baseTower = Game.instance.model.GetTower(BaseTower,5).Duplicate();
-
             towerModel = new TowerModel();
 
-            towerModel.name = $"{BaseTower}-Paragon";
-            towerModel.display = Display;
-            towerModel.baseId = BaseTower;
+            towerModel.name = $"{BaseId}-Paragon";
+            towerModel.display = baseTower.display;
+            towerModel.baseId = BaseId;
 
             towerModel.cost = Price;
             towerModel.towerSet = TowerClass;
@@ -84,7 +87,7 @@ namespace MagicParagons
             {
                 appliedUpgrades[upgrade] = baseTower.appliedUpgrades[upgrade];
             }
-            appliedUpgrades[5] = $"{BaseTower} Paragon";
+            appliedUpgrades[5] = $"{BaseId} Paragon";
             towerModel.appliedUpgrades = appliedUpgrades;
 
             towerModel.paragonUpgrade = null;
@@ -99,7 +102,8 @@ namespace MagicParagons
             towerModel.isParagon = true;
 
             towerModel.mods = new Il2CppReferenceArray<ApplyModModel>(0);
-            towerModel.mods = towerModel.mods.AddTo(baseTower.mods[0]); towerModel.mods = towerModel.mods.AddTo(baseTower.mods[1]);
+            towerModel.mods = towerModel.mods.AddTo(baseTower.mods[0].Duplicate());
+            towerModel.mods = towerModel.mods.AddTo(baseTower.mods[1].Duplicate());
 
             towerModel.AddBehavior(baseTower.GetBehavior<CreateEffectOnPlaceModel>());
             towerModel.AddBehavior(baseTower.GetBehavior<CreateSoundOnTowerPlaceModel>());
@@ -111,29 +115,13 @@ namespace MagicParagons
 
             var boomerangParagon = Game.instance.model.GetTowerFromId("BoomerangMonkey-Paragon").Duplicate();
 
-            towerModel.display = Display;
-            towerModel.GetBehavior<DisplayModel>().display = Display;
+            towerModel.display = baseTower.display;
+            towerModel.GetBehavior<DisplayModel>().display = baseTower.display;
 
             towerModel.AddBehavior(boomerangParagon.GetBehavior<ParagonTowerModel>());
-            towerModel.GetBehavior<ParagonTowerModel>().displayDegreePaths.ForEach(path => path.assetPath = Display);
+            towerModel.GetBehavior<ParagonTowerModel>().displayDegreePaths.ForEach(path => path.assetPath = baseTower.display);
             towerModel.AddBehavior(boomerangParagon.GetBehavior<CreateSoundOnAttachedModel>());
         }
-    }
-
-    abstract class ModParagonInfo
-    {
-        protected const string PRIMARY = "Primary";
-        protected const string MILITARY = "Military";
-        protected const string MAGIC = "Magic";
-        protected const string SUPPORT = "Support";
-
-        public abstract float Price { get; }
-        public abstract string BaseTower { get; }
-        public abstract string TowerClass { get; }
-
-        public virtual string Icon => Game.instance.model.GetTower("DartMonkey").icon.GUID;
-        public virtual string Display => Game.instance.model.GetTower("DartMonkey").display;
-
         protected const string DART = "DartMonkey";
         protected const string BOOMERANG = "BoomerangMonkey";
         protected const string BOMB = "BombShooter";
@@ -156,10 +144,10 @@ namespace MagicParagons
         protected const string SPIKE = "SpikeFactory";
         protected const string VILLAGE = "MonkeyVillage";
         protected const string ENGINEER = "EngineerMonkey";
-    }
 
-    class ParagonHelper
-    {
-        
+        protected const string PRIMARY = "Primary";
+        protected const string MILITARY = "Military";
+        protected const string MAGIC = "Magic";
+        protected const string SUPPORT = "Support";
     }
 }

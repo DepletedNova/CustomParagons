@@ -215,7 +215,7 @@ namespace SupportParagons
                                 float mathDegree = (float)Math.Floor(new Decimal(degree / 10));
                                 tTower.GetAttackModels()[1].weapons[0].rate = .3f / (mathDegree + 1);
                                 tTower.GetAttackModels()[1].weapons[0].projectile.pierce += 50 * (mathDegree + 1) + (5 * (degree - 1));
-                                tTower.GetAttackModels()[1].weapons[0].projectile.GetDamageModel().damage = 15 * (mathDegree + 1);
+                                tTower.GetAttackModels()[1].weapons[0].projectile.GetDamageModel().damage = 15 * (mathDegree + 1) + (degree - 1);
                             }
                         }
                         break;

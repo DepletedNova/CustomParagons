@@ -33,8 +33,17 @@ namespace MagicParagons
     {
         static Dictionary<string, Type> Paragons = new Dictionary<string, Type>()
         {
-            { "WizardMonkey", typeof(WizardParagon) }
+            { "WizardMonkey", typeof(WizardParagon) },
+            { "SuperMonkey", typeof(SuperParagon) }, 
         };
+
+        // Individual mod settings
+        static ModSettingBool wizardParagon = new ModSettingBool(true) {displayName = "WizardMonkey enabled? (Requires restart.)"};
+        static ModSettingBool superParagon = new ModSettingBool(true) { displayName = "SuperMonkey enabled? (Requires restart.)" };
+
+        // Mod setting pool
+        static List<ModSettingBool> paragonSettings = new List<ModSettingBool>()
+        {wizardParagon, superParagon};
 
         //! Update
         [HarmonyPatch(typeof(InGame), nameof(InGame.Update))]
@@ -89,14 +98,9 @@ namespace MagicParagons
         //! DO NOT CHANGE
         static List<Tuple<TowerModel, UpgradeModel>> enabledParagons = new List<Tuple<TowerModel, UpgradeModel>>();
 
-        static List<ModSettingBool> paragonSettings = new List<ModSettingBool>();
-
         public override void OnApplicationStart()
         {
             base.OnApplicationStart();
-            foreach (KeyValuePair<string, Type> pair in Paragons)
-                paragonSettings.Add(new ModSettingBool(true) { displayName = $"Enable {pair.Key} Paragon? (Requires restart.)" });
-            MelonLogger.Msg("Settings loaded.");
         }
 
         [HarmonyPatch(typeof(ProfileModel), nameof(ProfileModel.Validate))]

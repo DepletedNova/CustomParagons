@@ -23,26 +23,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnhollowerBaseLib;
+using BTD_Mod_Helper.Api.Display;
+using Assets.Scripts.Unity.Display;
+using UnityEngine;
 using MagicParagons.util;
-using Assets.Scripts.Models.Towers.Filters;
-using Assets.Scripts.Models.Towers.Behaviors.Emissions;
 
 namespace MagicParagons.Towers
 {
-    class WizardParagon : ModdedParagon
+    class SuperParagon : ModdedParagon
     {
         // Class info
         public static float Price = 300000;
-        public static string BaseTower = WIZARD;
+        public static string BaseTower = SUPER;
         public static string TowerClass = MAGIC;
         // Paragon localization
-        public static string DisplayName = "Wizard Paragon";
-        public static string Description = "Wizard description.";
+        public static string DisplayName = "Super Paragon";
+        public static string Description = "Super description.";
         //
         public static TowerModel Tower;
         public static UpgradeModel Upgrade;
         //
-        static WizardParagon()
+        static SuperParagon()
         {
             List<TowerModel> Towers = new List<TowerModel>()
             {
@@ -51,14 +52,30 @@ namespace MagicParagons.Towers
                 Game.instance.model.GetTower(BaseTower,0,5),
                 Game.instance.model.GetTower(BaseTower,0,0,5)
             };
-            setupTower(ref Upgrade, ref Tower, TowerClass, BaseTower, Price, Towers[3]);
+            setupTower(ref Upgrade, ref Tower, TowerClass, BaseTower, Price, Towers[1]);
 
             //! Custom Behavior
+            Tower.display = "f5cba0f9752b01545960aef3e3a8d06d";
+            Tower.GetBehavior<DisplayModel>().display = "f5cba0f9752b01545960aef3e3a8d06d";
 
-            Tower.range = 60;
-
-            // Bloon Necromancy
-            
+            Tower.GetBehavior<ParagonTowerModel>().displayDegreePaths.ForEach(path => path.assetPath = "f5cba0f9752b01545960aef3e3a8d06d");
+            /*foreach (var x in Towers[1].behaviors)
+                MelonLogger.Msg(x.name);*/
         }
+    }
+
+    public class YellowBeam : ModDisplay
+    {
+        public override string BaseDisplay => "b9f3014db2da83f48b34e662e9a79910";
+        public override void ModifyDisplayNode(UnityDisplayNode node)
+        {
+            foreach (var renderer in node.genericRenderers)
+            {
+                var meshRenderer = renderer.Cast<MeshRenderer>();
+                meshRenderer.material.SetColor("_Color1", Color.yellow);
+                meshRenderer.material.SetColor("_Color2", Color.yellow);
+            }
+        }
+        public override string Name => "YellowBeam";
     }
 }
