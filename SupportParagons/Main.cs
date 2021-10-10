@@ -181,9 +181,9 @@ namespace SupportParagons
                                     .GetBehavior<CreateTowerModel>().tower.GetWeapon().projectile.GetBehavior<CashModel>();
                                 var cashModel = towerModel.GetWeapon().projectile.GetBehavior<CashModel>();
                                 var amount = (5f * degree) * (2 * mathed + 2);
-                                if (cashModel.minimum != 1000 + amount)
+                                if (cashModel.minimum != 500 + amount)
                                 {
-                                    cashModel.minimum = 1000 + amount; cashModel.maximum = 1000 + amount;
+                                    cashModel.minimum = 500 + amount; cashModel.maximum = 500 + amount;
                                     towerModelCash.minimum = 400 + amount; towerModelCash.maximum = 400 + amount;
                                 }
                             }
