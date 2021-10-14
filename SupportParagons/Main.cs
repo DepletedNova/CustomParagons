@@ -3,29 +3,23 @@ using Assets.Scripts.Models;
 using Assets.Scripts.Models.Profile;
 using Assets.Scripts.Models.Towers;
 using Assets.Scripts.Models.Towers.Mods;
+using Assets.Scripts.Models.Towers.Projectiles.Behaviors;
 using Assets.Scripts.Models.Towers.Upgrades;
+using Assets.Scripts.Simulation.Towers.Behaviors;
 using Assets.Scripts.Unity;
-using Assets.Scripts.Unity.Player;
-
+using Assets.Scripts.Unity.Bridge;
+using Assets.Scripts.Unity.UI_New.InGame;
 using BTD_Mod_Helper;
 using BTD_Mod_Helper.Api.ModOptions;
 using BTD_Mod_Helper.Extensions;
-
 using HarmonyLib;
 using MelonLoader;
-
+using SupportParagons.Towers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using SupportParagons.Towers;
-using Assets.Scripts.Unity.UI_New.InGame;
-using Assets.Scripts.Unity.Bridge;
-using Assets.Scripts.Simulation.Towers.Behaviors;
-using Assets.Scripts.Models.Towers.Projectiles.Behaviors;
-using Assets.Scripts.Models.Towers.Behaviors;
-
-[assembly: MelonInfo(typeof(SupportParagons.Main), "Support Paragons", "1.1.1", "DepletedNova")]
+[assembly: MelonInfo(typeof(SupportParagons.Main), "Support Paragons", "1.2.0", "DepletedNova")]
 [assembly: MelonGame("Ninja Kiwi", "BloonsTD6")]
 namespace SupportParagons
 {
@@ -105,24 +99,17 @@ namespace SupportParagons
             }
         }
 
-        //! paragon testing
-        [HarmonyPatch(typeof(Btd6Player), nameof(Btd6Player.CheckShowParagonPip))]
+        /*[HarmonyPatch(typeof(Btd6Player), nameof(Btd6Player.CheckForNewParagonPipEvent))]
         class Btd6Player_CheckShowParagonPip
         {
             [HarmonyPrefix]
-            internal static bool Prefix(string towerId)
+            internal static ValueTuple<bool,bool> Prefix(string towerId, string checkSpecificTowerSet)
             {
-                bool isCustomParagon = false;
-                foreach (var paragonPair in paragons)
-                {
-                    if (towerId == paragonPair.Item1.baseId)
-                    {
-                        isCustomParagon = true;
-                    }
-                }
-                return !isCustomParagon;
+                MelonLogger.Msg(towerId);
+                MelonLogger.Msg(checkSpecificTowerSet);
+                return new ValueTuple<bool, bool>(false, false);
             }
-        }
+        }*/
 
         //! tiers for paragons
         [HarmonyPatch(typeof(GameModel), nameof(GameModel.CreateModded), new Type[] { typeof(GameModel), typeof(Il2CppSystem.Collections.Generic.List<ModModel>) })]

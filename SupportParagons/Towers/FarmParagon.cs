@@ -16,7 +16,7 @@ namespace SupportParagons.Towers
 {
     class FarmParagon
     {
-        static float price = 250000f;
+        static float price = 300000f;
 
         public static TowerModel towerModel;
         public static UpgradeModel upgradeModel;
