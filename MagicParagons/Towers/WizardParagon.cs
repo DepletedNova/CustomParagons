@@ -17,15 +17,19 @@ using Assets.Scripts.Utils;
 using BTD_Mod_Helper.Api;
 using BTD_Mod_Helper.Extensions;
 using HarmonyLib;
-using MelonLoader;
 using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnhollowerBaseLib;
+using BTD_Mod_Helper.Api.Display;
+using Assets.Scripts.Unity.Display;
+using UnityEngine;
 using MagicParagons.util;
-using Assets.Scripts.Models.Towers.Filters;
 using Assets.Scripts.Models.Towers.Behaviors.Emissions;
+using Assets.Scripts.Models.Towers.Behaviors.Abilities.Behaviors;
+using Assets.Scripts.Models.Towers.Filters;
+using MelonLoader;
 
 namespace MagicParagons.Towers
 {
@@ -36,7 +40,7 @@ namespace MagicParagons.Towers
         public static string BaseTower = WIZARD;
         public static string TowerClass = MAGIC;
         // Paragon localization
-        public static string DisplayName = "Wizard Paragon";
+        public static string DisplayName = "Hell's Harbringer";
         public static string Description = "Wizard description.";
         //
         public static TowerModel Tower;
@@ -56,9 +60,9 @@ namespace MagicParagons.Towers
             //! Custom Behavior
 
             Tower.range = 60;
-
-            // Bloon Necromancy
-            
+            //var sauda = Game.instance.model.GetTowerFromId("Sauda 20");
+            foreach (var x in Towers[3].GetAttackModels()[2].behaviors)
+                MelonLogger.Msg(x.name);
         }
     }
 }

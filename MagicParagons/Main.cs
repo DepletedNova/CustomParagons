@@ -1,28 +1,33 @@
 ﻿using Assets.Main.Scenes;
 using Assets.Scripts.Models;
+
 using Assets.Scripts.Models.Profile;
 using Assets.Scripts.Models.Towers;
+using Assets.Scripts.Models.Towers.Behaviors;
+using Assets.Scripts.Models.Towers.Behaviors.Attack.Behaviors;
+using Assets.Scripts.Models.Towers.Filters;
 using Assets.Scripts.Models.Towers.Mods;
+using Assets.Scripts.Models.Towers.Projectiles.Behaviors;
 using Assets.Scripts.Models.Towers.Upgrades;
+
+using Assets.Scripts.Simulation.Towers.Behaviors;
 using Assets.Scripts.Unity;
+using Assets.Scripts.Unity.Bridge;
 using Assets.Scripts.Unity.Player;
+using Assets.Scripts.Unity.UI_New.InGame;
 
 using BTD_Mod_Helper;
 using BTD_Mod_Helper.Api.ModOptions;
 using BTD_Mod_Helper.Extensions;
 
 using HarmonyLib;
+using UnhollowerBaseLib;
 using MelonLoader;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using Assets.Scripts.Unity.UI_New.InGame;
-using Assets.Scripts.Unity.Bridge;
-using Assets.Scripts.Simulation.Towers.Behaviors;
-using Assets.Scripts.Models.Towers.Projectiles.Behaviors;
-using Assets.Scripts.Models.Towers.Behaviors;
 using MagicParagons.Towers;
 
 [assembly: MelonInfo(typeof(MagicParagons.Main), "Magic Paragons", "1.0.0", "DepletedNova")]
@@ -34,16 +39,20 @@ namespace MagicParagons
         static Dictionary<string, Type> Paragons = new Dictionary<string, Type>()
         {
             { "WizardMonkey", typeof(WizardParagon) },
-            { "SuperMonkey", typeof(SuperParagon) }, 
+            { "SuperMonkey", typeof(SuperParagon) },
+            { "Druid", typeof(DruidParagon) },
+            { "Alchemist", typeof(AlchemistParagon) }
         };
 
         // Individual mod settings
-        static ModSettingBool wizardParagon = new ModSettingBool(true) {displayName = "WizardMonkey enabled? (Requires restart.)"};
-        static ModSettingBool superParagon = new ModSettingBool(true) { displayName = "SuperMonkey enabled? (Requires restart.)" };
+        static ModSettingBool wizardParagon = new ModSettingBool(true) { displayName = "WizardMonkey Paragon enabled? (Requires restart.)" };
+        static ModSettingBool superParagon = new ModSettingBool(true) { displayName = "SuperMonkey Paragon enabled? (Requires restart.)" };
+        static ModSettingBool druidParagon = new ModSettingBool(true) { displayName = "Druid Paragon enabled? (Requires restart.)" };
+        static ModSettingBool alchemistParagon = new ModSettingBool(true) { displayName = "Alchemist Paragon enabled? (Requires restart.)" };
 
         // Mod setting pool
         static List<ModSettingBool> paragonSettings = new List<ModSettingBool>()
-        {wizardParagon, superParagon};
+        {wizardParagon, superParagon, druidParagon, alchemistParagon};
 
         //! Update
         [HarmonyPatch(typeof(InGame), nameof(InGame.Update))]
@@ -64,7 +73,7 @@ namespace MagicParagons
                             {
                                 if (pair.Key == towerModel.baseId)
                                 {
-
+                                    //! put thing here
                                     break;
                                 }
                             }
@@ -87,7 +96,28 @@ namespace MagicParagons
                     {
                         if (simTower.IsParagon)
                         {
-
+                            var towerModel = simTower.tower.towerModel;
+                            var degree = simTower.tower.GetTowerBehavior<ParagonTower>().GetCurrentDegree();
+                            
+                            if (towerModel.baseId == "Druid")
+                            {
+                                if (degree > 70)
+                                {
+                                    var filters = new Il2CppReferenceArray<FilterModel>(new FilterModel[]
+                                    {
+                                        new FilterWithTagModel("MoabFilter","Moabs",false),
+                                        new FilterInvisibleModel("InvisFilter",false,false)
+                                    });
+                                    towerModel.GetAttackModel().GetBehavior<AttackFilterModel>().filters = filters;
+                                    towerModel.GetAttackModel().weapons[0].projectile.GetBehavior<ProjectileFilterModel>()
+                                        .filters = filters;
+                                }
+                                var spiritModel = towerModel.GetBehavior<SpiritOfTheForestModel>();
+                                int mathDegree = (int)Math.Floor(new Decimal(degree / 5));
+                                spiritModel.damageOverTimeZoneModelFar.behaviorModel.damage = 8 + mathDegree;
+                                spiritModel.damageOverTimeZoneModelMiddle.behaviorModel.damage = 15 + mathDegree;
+                                spiritModel.damageOverTimeZoneModelClose.behaviorModel.damage = 30 + mathDegree;
+                            }
                         }
                         break;
                     }
@@ -95,7 +125,7 @@ namespace MagicParagons
             }
         }
 
-        //! DO NOT CHANGE
+        //! Base function
         static List<Tuple<TowerModel, UpgradeModel>> enabledParagons = new List<Tuple<TowerModel, UpgradeModel>>();
 
         public override void OnApplicationStart()
