@@ -29,8 +29,9 @@ using System.Collections.Generic;
 using System.Linq;
 
 using MagicParagons.Towers;
+using Assets.Scripts.Simulation.Towers;
 
-[assembly: MelonInfo(typeof(MagicParagons.Main), "Magic Paragons", "1.0.0", "DepletedNova")]
+[assembly: MelonInfo(typeof(MagicParagons.Main), "Magic Paragons", "0.3.0", "DepletedNova")]
 [assembly: MelonGame("Ninja Kiwi", "BloonsTD6")]
 namespace MagicParagons
 {
@@ -54,9 +55,9 @@ namespace MagicParagons
         static List<ModSettingBool> paragonSettings = new List<ModSettingBool>()
         {wizardParagon, superParagon, druidParagon, alchemistParagon};
 
-        //! Update
-        [HarmonyPatch(typeof(InGame), nameof(InGame.Update))]
-        class Update
+        // On Round start
+        [HarmonyPatch(typeof(InGame),nameof(InGame.RoundStart))]
+        class RoundStart
         {
             [HarmonyPostfix]
             internal static void Postfix()
@@ -69,21 +70,53 @@ namespace MagicParagons
                         var towerModel = simTower.tower.towerModel;
                         if (simTower.IsParagon)
                         {
-                            foreach (KeyValuePair<string, Type> pair in Paragons)
-                            {
-                                if (pair.Key == towerModel.baseId)
-                                {
-                                    //! put thing here
-                                    break;
-                                }
-                            }
+
                         }
                     }
                 }
             }
         }
 
-        //! Tower upgraded to Paragon
+        // Degree updated
+        [HarmonyPatch(typeof(ParagonTower),nameof(ParagonTower.UpdateDegree))]
+        class UpdateDegreePatch
+        {
+            [HarmonyPostfix]
+            internal static void Postfix(ParagonTower __instance)
+            {
+                var tower = __instance.tower;
+                var towerModel = tower.towerModel;
+                var degree = tower.GetTowerBehavior<ParagonTower>().GetCurrentDegree();
+                if (towerModel.baseId == "Druid")
+                {
+                    if (degree > 70)
+                    {
+                        var filters = new Il2CppReferenceArray<FilterModel>(new FilterModel[]
+                        {
+                                        new FilterWithTagModel("MoabFilter","Moabs",false),
+                                        new FilterInvisibleModel("InvisFilter",false,false)
+                        });
+                        towerModel.GetAttackModel().GetBehavior<AttackFilterModel>().filters = filters;
+                        towerModel.GetAttackModel().weapons[0].projectile.GetBehavior<ProjectileFilterModel>()
+                            .filters = filters;
+                    }
+                    var spiritModel = towerModel.GetBehavior<SpiritOfTheForestModel>();
+                    int mathDegree = (int)Math.Floor(new Decimal(degree / 5));
+                    spiritModel.damageOverTimeZoneModelFar.behaviorModel.damage = 8 + mathDegree;
+                    spiritModel.damageOverTimeZoneModelMiddle.behaviorModel.damage = 15 + mathDegree;
+                    spiritModel.damageOverTimeZoneModelClose.behaviorModel.damage = 30 + mathDegree;
+                }
+            }
+        }
+
+        // Model loading
+        public override void OnApplicationStart()
+        {
+            base.OnApplicationStart();
+            // Put models here
+        }
+
+        // Upgrade to Paragon
         [HarmonyPatch(typeof(UnityToSimulation), nameof(UnityToSimulation.UpgradeTowerParagon))]
         class UpgradeTowerParagon
         {
@@ -96,27 +129,17 @@ namespace MagicParagons
                     {
                         if (simTower.IsParagon)
                         {
-                            var towerModel = simTower.tower.towerModel;
-                            var degree = simTower.tower.GetTowerBehavior<ParagonTower>().GetCurrentDegree();
-                            
-                            if (towerModel.baseId == "Druid")
+                            // Pheonix fix
+                            if (simTower.tower.towerModel.baseId == "WizardMonkey")
                             {
-                                if (degree > 70)
+                                foreach (var simulatedTower in InGame.instance.UnityToSimulation.GetAllTowers())
                                 {
-                                    var filters = new Il2CppReferenceArray<FilterModel>(new FilterModel[]
+                                    if (simulatedTower.tower.towerModel.baseId == "PermaPhoenix" ||
+                                        simulatedTower.tower.towerModel.baseId == "WizardLordPhoenix")
                                     {
-                                        new FilterWithTagModel("MoabFilter","Moabs",false),
-                                        new FilterInvisibleModel("InvisFilter",false,false)
-                                    });
-                                    towerModel.GetAttackModel().GetBehavior<AttackFilterModel>().filters = filters;
-                                    towerModel.GetAttackModel().weapons[0].projectile.GetBehavior<ProjectileFilterModel>()
-                                        .filters = filters;
+                                        simulatedTower.tower.Destroy();
+                                    }
                                 }
-                                var spiritModel = towerModel.GetBehavior<SpiritOfTheForestModel>();
-                                int mathDegree = (int)Math.Floor(new Decimal(degree / 5));
-                                spiritModel.damageOverTimeZoneModelFar.behaviorModel.damage = 8 + mathDegree;
-                                spiritModel.damageOverTimeZoneModelMiddle.behaviorModel.damage = 15 + mathDegree;
-                                spiritModel.damageOverTimeZoneModelClose.behaviorModel.damage = 30 + mathDegree;
                             }
                         }
                         break;
@@ -127,11 +150,6 @@ namespace MagicParagons
 
         //! Base function
         static List<Tuple<TowerModel, UpgradeModel>> enabledParagons = new List<Tuple<TowerModel, UpgradeModel>>();
-
-        public override void OnApplicationStart()
-        {
-            base.OnApplicationStart();
-        }
 
         [HarmonyPatch(typeof(ProfileModel), nameof(ProfileModel.Validate))]
         class ProfileModel_Validate
@@ -176,24 +194,6 @@ namespace MagicParagons
                     Game.instance.GetLocalizationManager().textTable[$"{pair.Key} Paragon Description"] =
                         (string)pair.Value.GetField("Description").GetValue(null);
                 }
-            }
-        }
-
-        [HarmonyPatch(typeof(Btd6Player), nameof(Btd6Player.CheckShowParagonPip))]
-        class Btd6Player_CheckShowParagonPip
-        {
-            [HarmonyPrefix]
-            internal static bool Prefix(string towerId)
-            {
-                bool isCustomParagon = false;
-                foreach (var paragonPair in enabledParagons)
-                {
-                    if (towerId == paragonPair.Item1.baseId)
-                    {
-                        isCustomParagon = true;
-                    }
-                }
-                return !isCustomParagon;
             }
         }
 

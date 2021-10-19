@@ -30,6 +30,7 @@ using Assets.Scripts.Models.Towers.Behaviors.Emissions;
 using Assets.Scripts.Models.Towers.Behaviors.Abilities.Behaviors;
 using Assets.Scripts.Models.Towers.Filters;
 using MelonLoader;
+using MagicParagons.Towers.Sub;
 
 namespace MagicParagons.Towers
 {
@@ -57,12 +58,39 @@ namespace MagicParagons.Towers
             };
             setupTower(ref Upgrade, ref Tower, TowerClass, BaseTower, Price, Towers[3]);
 
-            //! Custom Behavior
+            // Display
+            var wizardDisplay = ModContent.GetInstance<WizardDisplay>().Id;
+            Tower.display = wizardDisplay;
+            Tower.GetBehavior<DisplayModel>().display = wizardDisplay;
+            Tower.GetBehavior<ParagonTowerModel>().displayDegreePaths.ForEach(path => path.assetPath = wizardDisplay);
 
+            //! Custom Behavior
             Tower.range = 60;
-            //var sauda = Game.instance.model.GetTowerFromId("Sauda 20");
-            foreach (var x in Towers[3].GetAttackModels()[2].behaviors)
-                MelonLogger.Msg(x.name);
+            // Ghost creator
+            var e100 = Game.instance.model.GetTower("EngineerMonkey", 1);
+            Tower.AddBehavior(e100.GetAttackModel().Duplicate());
+            var createAttackModel = Tower.GetAttackModel();
+            createAttackModel.range = 60;
+            createAttackModel.RemoveBehavior<RotateToTargetModel>();
+            createAttackModel.RemoveBehavior<CreateEffectWhileAttackingModel>();
+            createAttackModel.weapons[0].projectile.GetBehavior<DisplayModel>().display = null;
+            createAttackModel.weapons[0].projectile.display = null;
+            createAttackModel.weapons[0].projectile.GetBehavior<CreateTowerModel>().tower = ModContent.GetTowerModel<MiniWizard>().Duplicate();
+            createAttackModel.weapons[0].rate = 3.75f;
+            createAttackModel.weapons[0].animation = 0;
+        }
+    }
+
+    public class WizardDisplay : ModDisplay
+    {
+        public override string BaseDisplay => "7dc46f26af35f39449aa94b70c3a53a1";
+
+        public override void ModifyDisplayNode(UnityDisplayNode node)
+        {
+            var basic = node.gameObject.transform.FindChild("LOD_1");
+            var v3 = new Vector3(1.4f, 1.4f, 1.4f);
+            basic.set_localScale_Injected(ref v3);
+            node.Scale = v3;
         }
     }
 }

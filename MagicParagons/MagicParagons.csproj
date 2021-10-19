@@ -82,12 +82,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Towers\DruidParagon.cs" />
     <Compile Include="Towers\AlchemistParagon.cs" />
+    <Compile Include="Towers\Sub\MiniWizard.cs" />
     <Compile Include="Towers\SuperParagon.cs" />
     <Compile Include="Towers\WizardParagon.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\Bundles\" />
-    <Folder Include="Towers\Sub\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Textures\temporary_thorn.png" />

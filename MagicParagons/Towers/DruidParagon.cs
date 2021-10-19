@@ -4,6 +4,7 @@ using Assets.Scripts.Models.Towers;
 using Assets.Scripts.Models.Towers.Behaviors;
 using Assets.Scripts.Models.Towers.Behaviors.Attack.Behaviors;
 using Assets.Scripts.Models.Towers.Filters;
+using Assets.Scripts.Models.Towers.Projectiles;
 using Assets.Scripts.Models.Towers.Projectiles.Behaviors;
 using Assets.Scripts.Models.Towers.Upgrades;
 using Assets.Scripts.Models.Towers.Weapons.Behaviors;
@@ -19,7 +20,7 @@ namespace MagicParagons.Towers
     class DruidParagon : ModdedParagon
     {
         // Class info
-        public static float Price = 400000;
+        public static float Price = 600000;
         public static string BaseTower = DRUID;
         public static string TowerClass = MAGIC;
         // Paragon localization
@@ -44,12 +45,12 @@ namespace MagicParagons.Towers
             Tower.range = 80;
             // Red Vines
             var baseZone = Towers[2].GetBehavior<SpiritOfTheForestModel>().Duplicate();
-            var DOTfar = new DamageOverTimeCustomModel("DOT_Far", 8, 1f, BloonProperties.None, null, 
-                0, true, new Il2CppStringArray(0), 1, 0, 0, false, 0, false);
+            var DOTfar = new DamageOverTimeCustomModel("DOT_Far", 8, 1f, BloonProperties.None, null,
+                0, true, new Il2CppStringArray(0), 1, 0, 0, false, 0, false, true, new Il2CppReferenceArray<DamageModifierModel>(0));
             var DOTmid = new DamageOverTimeCustomModel("DOT_Middle", 15, 1f, BloonProperties.None, null,
-                0, true, new Il2CppStringArray(0), 1, 0, 0, false, 0, false);
+                0, true, new Il2CppStringArray(0), 1, 0, 0, false, 0, false, true, new Il2CppReferenceArray<DamageModifierModel>(0));
             var DOTclo = new DamageOverTimeCustomModel("DOT_Close", 30, 1f, BloonProperties.None, null,
-                0, true, new Il2CppStringArray(0), 1, 0, 0, false, 0, false);
+                0, true, new Il2CppStringArray(0), 1, 0, 0, false, 0, false, true, new Il2CppReferenceArray<DamageModifierModel>(0));
             var DOTZfar = new DamageOverTimeZoneModel(DOTfar, "DOTZ_Far", 0, false, false, true, "DruidParagonFar");
             var DOTZmid = new DamageOverTimeZoneModel(DOTmid, "DOTZ_Middle", 0, false, false, true, "DruidParagonMiddle");
             var DOTZclo = new DamageOverTimeZoneModel(DOTclo, "DOTZ_Close", 0, false, false, true, "DruidParagonClose");
