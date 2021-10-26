@@ -99,18 +99,6 @@ namespace SupportParagons
             }
         }
 
-        /*[HarmonyPatch(typeof(Btd6Player), nameof(Btd6Player.CheckForNewParagonPipEvent))]
-        class Btd6Player_CheckShowParagonPip
-        {
-            [HarmonyPrefix]
-            internal static ValueTuple<bool,bool> Prefix(string towerId, string checkSpecificTowerSet)
-            {
-                MelonLogger.Msg(towerId);
-                MelonLogger.Msg(checkSpecificTowerSet);
-                return new ValueTuple<bool, bool>(false, false);
-            }
-        }*/
-
         //! tiers for paragons
         [HarmonyPatch(typeof(GameModel), nameof(GameModel.CreateModded), new Type[] { typeof(GameModel), typeof(Il2CppSystem.Collections.Generic.List<ModModel>) })]
         class GameModel_CreateModded
@@ -136,7 +124,7 @@ namespace SupportParagons
         }
 
         //! BananaFarm degree & stat update
-        [HarmonyPatch(typeof(InGame), nameof(InGame.Update))]
+        [HarmonyPatch(typeof(InGame), nameof(InGame.RoundStart))]
         class Update
         {
             [HarmonyPostfix]
@@ -168,9 +156,9 @@ namespace SupportParagons
                                     .GetBehavior<CreateTowerModel>().tower.GetWeapon().projectile.GetBehavior<CashModel>();
                                 var cashModel = towerModel.GetWeapon().projectile.GetBehavior<CashModel>();
                                 var amount = (5f * degree) * (2 * mathed + 2);
-                                if (cashModel.minimum != 500 + amount)
+                                if (cashModel.minimum != 800 + amount)
                                 {
-                                    cashModel.minimum = 500 + amount; cashModel.maximum = 500 + amount;
+                                    cashModel.minimum = 800 + amount; cashModel.maximum = 800 + amount;
                                     towerModelCash.minimum = 400 + amount; towerModelCash.maximum = 400 + amount;
                                 }
                             }

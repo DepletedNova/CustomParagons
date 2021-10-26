@@ -56,7 +56,7 @@ namespace MagicParagons.Towers
                 Game.instance.model.GetTower(BaseTower,0,5),
                 Game.instance.model.GetTower(BaseTower,0,0,5)
             };
-            setupTower(ref Upgrade, ref Tower, TowerClass, BaseTower, Price, Towers[3]);
+            setupTower(ref Upgrade, ref Tower, TowerClass, BaseTower, Price, Towers[1]);
 
             // Display
             var wizardDisplay = ModContent.GetInstance<WizardDisplay>().Id;
@@ -78,6 +78,8 @@ namespace MagicParagons.Towers
             createAttackModel.weapons[0].projectile.GetBehavior<CreateTowerModel>().tower = ModContent.GetTowerModel<MiniWizard>().Duplicate();
             createAttackModel.weapons[0].rate = 3.75f;
             createAttackModel.weapons[0].animation = 0;
+
+            Tower.AddBehavior(new TowerCreateTowerModel("CreateYin", ModContent.GetTowerModel<ParagonPhoenix>().Duplicate(), true));
         }
     }
 

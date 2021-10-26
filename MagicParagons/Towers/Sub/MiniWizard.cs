@@ -18,7 +18,7 @@ namespace MagicParagons.Towers.Sub
     class MiniWizard : ModTower
     {
         public override string TowerSet => MAGIC;
-        public override string BaseTower => "WizardMonkey-402"; 
+        public override string BaseTower => "WizardMonkey-502"; 
         public override string Name => "GhostWizard";
 
         public override string DisplayName => "Ghastly Wizard";

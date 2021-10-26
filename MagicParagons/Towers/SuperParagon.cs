@@ -58,8 +58,6 @@ namespace MagicParagons.Towers
             Tower.GetBehavior<DisplayModel>().display = "f5cba0f9752b01545960aef3e3a8d06d";
             Tower.GetBehavior<ParagonTowerModel>().displayDegreePaths.ForEach(path => path.assetPath = "f5cba0f9752b01545960aef3e3a8d06d");
             //! Custom Behavior
-            /*foreach (var x in Towers[1].behaviors)
-                MelonLogger.Msg(x.name);*/
         }
     }
 
