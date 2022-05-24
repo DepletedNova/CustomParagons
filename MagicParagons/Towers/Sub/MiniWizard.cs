@@ -39,7 +39,7 @@ namespace MagicParagons.Towers.Sub
             // Sub-Tower behavior
             Tower.RemoveBehavior<CreateSoundOnTowerPlaceModel>();
             Tower.AddBehavior(new CreditPopsToParentTowerModel("CreditPops"));
-            Tower.AddBehavior(new TowerExpireModel("GhostWizard", 12, false, false));
+            Tower.AddBehavior(new TowerExpireModel("GhostWizard", 12,999, false, false));
             Tower.isSubTower = true;
             Tower.footprint = Game.instance.model.GetTower(TowerType.Sentry).footprint.Duplicate();
 

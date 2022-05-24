@@ -63,40 +63,10 @@ namespace MagicParagons.Patches
                                 }
                             }
                         }
-                        //! Paragon Sacrifice fix
-                        if (!simTower.tower.HasTowerBehavior<ParagonSacrifice>())
-                            simTower.tower.AddTowerBehavior(new ParagonSacrifice());
                     }
                     break;
                 }
             }
         }
-    }
-
-    public class ParagonSacrifice : TowerBehavior
-    {
-        public string towerSet = null;
-        public bool markedforSacrifice = false;
-
-        public ParagonSacrifice()
-        {
-            towerSet = tower.towerModel.towerSet;
-        }
-
-        public void sacrificeTower()
-        {
-            
-        }
-
-        public new void OnSelected()
-        {
-            
-        }
-    }
-
-    [HarmonyPatch(typeof(TowerSelectionMenu), nameof(TowerSelectionMenu.OnUpdate))]
-    class TowerSelection_TowerSelection
-    {
-
     }
 }
