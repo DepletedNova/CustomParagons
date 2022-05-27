@@ -32,7 +32,7 @@ namespace SupportParagons.Towers.Sub
             var f500 = Game.instance.model.GetTower("BananaFarm", 4);
             Tower.AddBehavior(f500.GetAttackModel().Duplicate());
 
-            var expireModel = new TowerExpireModel("FarmParagon_SubTower_Expire", 10f, false, false);
+            var expireModel = new TowerExpireModel("FarmParagon_SubTower_Expire", 10f,999, false, false);
             Tower.AddBehavior(expireModel);
             Tower.isSubTower = true;
 
